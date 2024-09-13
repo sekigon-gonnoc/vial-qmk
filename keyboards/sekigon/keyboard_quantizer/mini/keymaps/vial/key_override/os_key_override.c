@@ -31,12 +31,13 @@ int register_os_key_override(const key_override_t *override) {
         return -1;
     }
 
-    override_ptrs[VIAL_KEY_OVERRIDE_ENTRIES + os_override_cnt++]   = override;
-    override_ptrs[VIAL_KEY_OVERRIDE_ENTRIES + os_override_cnt + 1] = override;
+    override_ptrs[VIAL_KEY_OVERRIDE_ENTRIES + os_override_cnt++] = override;
     return 0;
 }
 
 void remove_all_os_key_overrides(void) {
-    override_ptrs[VIAL_KEY_OVERRIDE_ENTRIES + 1] = NULL;
-    os_override_cnt                              = 0;
+    for (int i = 0; i < OS_KEY_OVERRIDE_ENTRIES; i++) {
+        override_ptrs[VIAL_KEY_OVERRIDE_ENTRIES + i] = NULL;
+    }
+    os_override_cnt = 0;
 }

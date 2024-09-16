@@ -7,6 +7,7 @@
 #include "bmp_indicator_led.h"
 #include "bmp.h"
 #include "bmp_matrix.h"
+#include "bmp_file.h"
 
 int sleep_enter_counter     = -1;
 int reset_counter           = -1;
@@ -192,6 +193,8 @@ void bmp_mode_transition_check(void) {
             BMPAPI->bootloader_jump();
         }
     }
+
+    flush_bmp_file();
 }
 
 static bool task_interval_stretch;

@@ -15,6 +15,8 @@
 #include "crc16.h"
 #include "bmp.h"
 
+static bool update_flag = false;
+
 bmp_file_t detect_file_type(const uint8_t *data, uint16_t len) {
     if (((const flash_vial_data_t *)data)->magic == BMP_VIAL_FLASH_PAGE_MAGIC) {
         return BMP_FILE_CONFIG;
@@ -62,14 +64,7 @@ bmp_file_res_t write_bmp_file(bmp_file_t file_type, const uint8_t *data, uint32_
                 uint16_t crc = crc16((const uint8_t *)&flash_vial_data, BMP_USER_FLASH_PAGE_SIZE - sizeof(flash_vial_data.crc16));
                 printf("crc received:%04lx calc:%04x\n", flash_vial_data.crc16, crc);
                 if (flash_vial_data.crc16 == crc) {
-                    bmp_vial_save_config();
-
-                    dynamic_keymap_config_t new_dynamic_keymap_config;
-                    bmp_dynamic_keymap_calc_offset(&flash_vial_data.bmp_config, &new_dynamic_keymap_config);
-
-                    if (new_dynamic_keymap_config.vial_qmk_setting_eeprom_addr != p_dynamic_keymap_config->vial_qmk_setting_eeprom_addr) {
-                        qmk_settings_reset();
-                    }
+                    update_flag = true;
                 }
 
                 return BMP_FILE_COMPLETE;
@@ -86,4 +81,18 @@ bmp_file_res_t write_bmp_file(bmp_file_t file_type, const uint8_t *data, uint32_
     }
 
     return BMP_FILE_CONTINUE;
+}
+
+void flush_bmp_file(void) {
+    if (update_flag) {
+        update_flag = false;
+        bmp_vial_save_config();
+
+        dynamic_keymap_config_t new_dynamic_keymap_config;
+        bmp_dynamic_keymap_calc_offset(&flash_vial_data.bmp_config, &new_dynamic_keymap_config);
+
+        if (new_dynamic_keymap_config.vial_qmk_setting_eeprom_addr != p_dynamic_keymap_config->vial_qmk_setting_eeprom_addr) {
+            qmk_settings_reset();
+        }
+    }
 }

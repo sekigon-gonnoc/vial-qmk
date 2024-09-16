@@ -1,5 +1,5 @@
 #!/bin/sh
-version="1_2_3"
+version="1_3_0"
 make ble_micro_pro:vial:zip -j8
 make ble_micro_pro:vial_no_msc:zip -j8
 make sekigon/gtrk67:vial:zip -j8

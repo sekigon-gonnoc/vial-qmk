@@ -6,7 +6,7 @@
 
 #include "error_def.h"
 
-#define API_VERSION 17
+#define API_VERSION 18
 #define CONFIG_VERSION 3
 #define PINS_MAX 32
 

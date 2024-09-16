@@ -31,12 +31,12 @@ static uint32_t scan_col2row(matrix_row_t *matrix_raw) {
     uint8_t                 matrix_offset = 0;
     uint32_t                change        = 0;
 
-    matrix_func_col2row.init();
-    change |= matrix_func_col2row.scan(matrix_raw);
-
     matrix_offset = config->matrix.device_rows;
     matrix_func_row2col.init();
     change |= matrix_func_row2col.scan(&matrix_raw[matrix_offset]);
+
+    matrix_func_col2row.init();
+    change |= matrix_func_col2row.scan(matrix_raw);
 
     return change;
 }
@@ -53,12 +53,12 @@ static uint32_t scan_row2col(matrix_row_t *matrix_raw) {
     uint8_t                 matrix_offset = 0;
     uint32_t                change        = 0;
 
-    matrix_func_row2col.init();
-    change |= matrix_func_row2col.scan(matrix_raw);
-
     matrix_offset = config->matrix.device_rows;
     matrix_func_col2row.init();
     change |= matrix_func_col2row.scan(&matrix_raw[matrix_offset]);
+
+    matrix_func_row2col.init();
+    change |= matrix_func_row2col.scan(matrix_raw);
 
     return change;
 }

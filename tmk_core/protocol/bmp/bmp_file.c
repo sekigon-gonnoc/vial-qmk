@@ -92,7 +92,7 @@ void flush_bmp_file(void) {
         bmp_dynamic_keymap_calc_offset(&flash_vial_data.bmp_config, &new_dynamic_keymap_config);
 
         if (new_dynamic_keymap_config.vial_qmk_setting_eeprom_addr != p_dynamic_keymap_config->vial_qmk_setting_eeprom_addr) {
-            qmk_settings_reset();
+            eeprom_update_word((uint16_t *)new_dynamic_keymap_config.vial_bmp_dynamic_keymap_magic_addr, 0);
         }
     }
 }

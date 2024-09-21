@@ -8,6 +8,7 @@
 typedef struct {
     uint32_t encoder_eeprom_addr;
     uint32_t encoder_size;
+    uint32_t vial_bmp_dynamic_keymap_magic_addr;
     uint32_t vial_qmk_setting_eeprom_addr;
     uint32_t vial_tap_dance_eeprom_addr;
     uint32_t vial_combo_eeprom_addr;
@@ -19,6 +20,7 @@ typedef struct {
     uint8_t  matrix_cols;
     uint8_t  layer;
 } dynamic_keymap_config_t;
+#define VIAL_BMP_DYNAMIC_KEYMAP_MAGIC 0xB9FE
 
 bool bmp_config_overwrite(bmp_api_config_t const *const config_on_storage,
                           bmp_api_config_t *const       keyboard_config);

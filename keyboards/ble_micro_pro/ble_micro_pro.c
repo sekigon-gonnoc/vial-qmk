@@ -3,6 +3,7 @@
 #include "ble_micro_pro.h"
 
 #include "bmp.h"
+#include "bmp_settings.h"
 
 bool process_record_kb(uint16_t keycode, keyrecord_t *record) {
     bool cont = process_record_bmp(keycode, record);
@@ -23,6 +24,8 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
     if (*channel_id == id_custom_channel) {
         printf("command:%d channel:%d value_id:%d value:%d\n", *command_id, *channel_id, value_id_and_data[0], value_id_and_data[1]);
     }
+
+    via_custom_value_command_bmp(data, length);
 }
 
 void raw_hid_receive_kb(uint8_t *data, uint8_t length) {

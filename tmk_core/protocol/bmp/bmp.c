@@ -222,7 +222,9 @@ void        bmp_main_task(void *_) {
 void protocol_setup(void) {
     bmp_init();
     host_set_driver(&driver);
-    eeprom_driver_init();
+}
+
+void vial_pre_init(void) {
     bmp_dynamic_keymap_init();
 }
 

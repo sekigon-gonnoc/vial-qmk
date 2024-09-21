@@ -8,6 +8,7 @@
 // BMP headers
 #include "apidef.h"
 #include "bmp_vial.h"
+#include "state_controller.h"
 
 uint8_t     keyboard_idle __attribute__((aligned(2)))      = 0;
 uint8_t     keyboard_protocol __attribute__((aligned(2)))  = 1;
@@ -43,6 +44,7 @@ void select_ble(void) {
         report_mouse_t    rep_mouse       = {0};
         host_keyboard_send(&report_keyboard);
         host_mouse_send(&rep_mouse);
+        default_layer_or(get_bmp_default_layer_cache());
     }
     ble_enabled = true;
     usb_enabled = false;
@@ -54,6 +56,7 @@ void select_usb(void) {
         report_mouse_t    rep_mouse       = {0};
         host_keyboard_send(&report_keyboard);
         host_mouse_send(&rep_mouse);
+        default_layer_and(~get_bmp_default_layer_cache());
     }
     ble_enabled = false;
     usb_enabled = true;

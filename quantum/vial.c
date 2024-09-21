@@ -58,7 +58,12 @@ static void reload_combo(void);
 static void reload_key_override(void);
 #endif
 
+void vial_pre_init(void) __attribute__((weak));
+void vial_pre_init(void) {}
+
 void vial_init(void) {
+    vial_pre_init();
+
 #ifdef VIAL_TAP_DANCE_ENABLE
     reload_tap_dance();
 #endif

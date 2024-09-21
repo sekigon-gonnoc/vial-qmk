@@ -214,8 +214,8 @@
     },
     {
       "name": "DEL0",
-      "title": "Delete pairing info ID1",
-      "shortName": "DEL\nID1"
+      "title": "Delete pairing info ID0",
+      "shortName": "DEL\nID0"
     },
     {
       "name": "DEL1",
@@ -286,6 +286,144 @@
       "name": "ENABLE_DRAG_SCROLL_ON_HOLD",
       "title": "Enable drag scroll on hold",
       "shortName": "DRAG\nSCROLL"
+    }
+  ],
+  "menus": [
+    {
+      "label": "Connection",
+      "content": [
+        {
+          "label": "Connection based layer",
+          "content": [
+            {
+              "label": "Enable connection based layer",
+              "type": "toggle",
+              "content": [
+                "id_enable_connection_based_layer",
+                0,
+                255
+              ]
+            },
+            {
+              "showIf": "{id_enable_connection_based_layer} != 0",
+              "content": [
+                {
+                  "label": "Default layer for ID0",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[0]",
+                    0,
+                    254,
+                    0
+                  ]
+                },
+                {
+                  "label": "Default layer for ID1",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[1]",
+                    0,
+                    254,
+                    1
+                  ]
+                },
+                {
+                  "label": "Default layer for ID2",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[2]",
+                    0,
+                    254,
+                    2
+                  ]
+                },
+                {
+                  "label": "Default layer for ID3",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[3]",
+                    0,
+                    254,
+                    3
+                  ]
+                },
+                {
+                  "label": "Default layer for ID4",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[4]",
+                    0,
+                    254,
+                    4
+                  ]
+                },
+                {
+                  "label": "Default layer for ID5",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[5]",
+                    0,
+                    254,
+                    5
+                  ]
+                },
+                {
+                  "label": "Default layer for ID6",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[6]",
+                    0,
+                    254,
+                    6
+                  ]
+                },
+                {
+                  "label": "Default layer for ID7",
+                  "type": "range",
+                  "options": [
+                    0,
+                    8
+                  ],
+                  "content": [
+                    "id_trackball_aml_layer[7]",
+                    0,
+                    254,
+                    7
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

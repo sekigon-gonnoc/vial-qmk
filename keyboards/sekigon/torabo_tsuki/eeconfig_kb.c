@@ -96,11 +96,15 @@ static const eeconfig_kb_member_t eeconfig_kb_members[] = {
 
 static void process_custom_value_command(uint8_t *data, uint8_t length) {
     uint8_t *command_id        = &(data[0]);
-    // uint8_t *channel_id        = &(data[1]);
+    uint8_t *channel_id        = &(data[1]);
     uint8_t *value_id_and_data = &(data[2]);
 
     if (*command_id == id_eeprom_reset) {
         eeconfig_init_kb_datablock();
+        return;
+    }
+
+    if (*channel_id != id_custom_channel) {
         return;
     }
 

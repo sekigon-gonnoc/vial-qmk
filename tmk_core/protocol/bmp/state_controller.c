@@ -1,6 +1,8 @@
 // Copyright 2023 sekigon-gonnoc
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
+#include "action_layer.h"
+
 // BMP
 #include "state_controller.h"
 #include "bmp_host_driver.h"
@@ -8,6 +10,7 @@
 #include "bmp.h"
 #include "bmp_matrix.h"
 #include "bmp_file.h"
+#include "bmp_settings.h"
 
 int sleep_enter_counter     = -1;
 int reset_counter           = -1;
@@ -19,6 +22,8 @@ static bool is_ble_connected_ = false;
 static bool is_event_driven_applicable_ = false;
 
 static uint32_t auto_sleep_timeout_ms = 0;
+
+static layer_state_t default_layer_cache;
 
 bool is_usb_connected(void) {
     return is_usb_connected_;
@@ -50,6 +55,10 @@ __attribute__((weak)) void bmp_before_shutdown(void) {
 __attribute__((weak)) void bmp_state_change_cb_user(bmp_api_event_t event) {}
 __attribute__((weak)) void bmp_state_change_cb_kb(bmp_api_event_t event) {
     bmp_state_change_cb_user(event);
+}
+
+layer_state_t get_bmp_default_layer_cache(void) {
+    return default_layer_cache;
 }
 
 bmp_error_t bmp_state_change_cb(bmp_api_event_t event) {
@@ -97,12 +106,26 @@ bmp_error_t bmp_state_change_cb(bmp_api_event_t event) {
                 select_ble();
             }
             bmp_indicator_set(INDICATOR_CONNECTED, 0);
+
+            default_layer_and(~default_layer_cache);
+            uint8_t connection_layer = bmp_settings_get_connection_setting_layer(BMPAPI->ble.get_connection_status() & 0xff);
+            if (connection_layer >= 0) {
+                if (get_ble_enabled()) {
+                    default_layer_or(1 << connection_layer);
+                }
+                default_layer_cache = (1 << connection_layer);
+            } else {
+                default_layer_cache = 0;
+            }
+
             bmp_set_enable_task_interval_stretch(false);
             bmp_schedule_next_task();
             break;
 
         case BLE_DISCONNECTED:
             is_ble_connected_ = false;
+            default_layer_and(~default_layer_cache);
+            default_layer_cache = 0;
             // Disable below code because BLE could be disconnected unintentionally
             // if (is_usb_connected()) {
             //     select_usb();

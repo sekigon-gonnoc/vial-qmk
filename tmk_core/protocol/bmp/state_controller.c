@@ -167,11 +167,19 @@ static bool is_event_driven_applicable(void) {
 }
 
 static bool is_any_key_pressed(void) {
-    uint8_t matrix_offset      = bmp_config->matrix.is_left_hand ? 0 : bmp_config->matrix.rows - bmp_matrix_get_device_row();
-    bool    _is_any_key_pressed = false;
-    for (int i = 0; i < bmp_config->matrix.device_rows; i++) {
-        if (matrix_get_row(i + matrix_offset) != 0) {
-            _is_any_key_pressed |= true;
+    bool _is_any_key_pressed = false;
+    if (bmp_config->matrix.diode_direction == MATRIX_COL2ROW_LPME || bmp_config->matrix.diode_direction == MATRIX_ROW2COL_LPME) {
+        for (int i = 0; i < bmp_config->matrix.rows; i++) {
+            if (matrix_get_row(i) != 0) {
+                _is_any_key_pressed |= true;
+            }
+        }
+    } else {
+        uint8_t matrix_offset = bmp_config->matrix.is_left_hand ? 0 : bmp_config->matrix.rows - bmp_matrix_get_device_row();
+        for (int i = 0; i < bmp_config->matrix.device_rows; i++) {
+            if (matrix_get_row(i + matrix_offset) != 0) {
+                _is_any_key_pressed |= true;
+            }
         }
     }
 

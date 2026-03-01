@@ -54,6 +54,6 @@ VPATH += $(TMK_PATH)/$(BMP_DIR)/cli/microshell/core
 VPATH += $(TMK_PATH)/$(BMP_DIR)/cli/microshell/util
 VPATH += $(TMK_PATH)/$(BMP_DIR)/key_override
 
-$(BMP_DIR)/bmp_settings.c: $(INTERMEDIATE_OUTPUT)/src/vial_generated_custom_menu_definition.h
+$(BMP_DIR)/bmp_settings.c: | $(INTERMEDIATE_OUTPUT)/src/vial_generated_custom_menu_definition.h
 $(INTERMEDIATE_OUTPUT)/src/vial_generated_custom_menu_definition.h: $(KEYMAP_PATH)/vial.json
 	python3 util/vial_generate_custom_menu_id.py $(KEYMAP_PATH)/vial.json $(INTERMEDIATE_OUTPUT)/src/vial_generated_custom_menu_definition.h

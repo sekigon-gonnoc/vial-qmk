@@ -372,3 +372,12 @@ void dynamic_keymap_macro_send(uint8_t id) {
         }
     }
 }
+
+bool led_update_user(led_t led_state) {
+    if (led_state.caps_lock) {
+        writePinLow(GP25);
+    } else {
+        writePinHigh(GP25);
+    }
+    return true;
+}

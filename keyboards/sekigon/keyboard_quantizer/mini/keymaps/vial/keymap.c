@@ -41,4 +41,4 @@ bool led_update_user(led_t led_state) {
         writePinHigh(GP25); // CapsLockオフで消灯
     }
     return true;
-} 
+}

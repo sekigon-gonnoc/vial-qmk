@@ -1,0 +1,71 @@
+name: Feather Quantizer - firmware build
+
+on:
+  push:
+    branches: [feather-main]
+    paths:
+      - 'keyboards/feather_quantizer/**'
+      - 'scripts/feather-quantizer/**'
+      - '.github/workflows/feather-build.yml'
+  pull_request:
+    paths:
+      - 'keyboards/feather_quantizer/**'
+      - 'scripts/feather-quantizer/**'
+      - '.github/workflows/feather-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline-kqm:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Show toolchain
+        run: |
+          qmk --version || true
+          arm-none-eabi-gcc --version | head -n 1 || true
+          git submodule status
+
+      - name: Build upstream KQM Mini baseline
+        run: bash scripts/feather-quantizer/build-kqm-baseline.sh
+
+      - name: Upload KQM baseline UF2
+        uses: actions/upload-artifact@v4
+        with:
+          name: kqm-mini-baseline-uf2
+          path: '*.uf2'
+          if-no-files-found: error
+
+  feather-target:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Build Feather target when implementation exists
+        shell: bash
+        run: |
+          if [[ -f keyboards/feather_quantizer/rules.mk || -f keyboards/feather_quantizer/info.json ]]; then
+            make feather_quantizer:vial:uf2
+          else
+            echo 'Feather target is not implemented yet; skipping target build.'
+          fi
+
+      - name: Upload Feather UF2 when present
+        uses: actions/upload-artifact@v4
+        with:
+          name: feather-quantizer-uf2
+          path: '*feather_quantizer*.uf2'
+          if-no-files-found: ignore

@@ -1,0 +1,16 @@
+AGENTS.md
+BOOTSTRAP.md
+FEATHER_QUANTIZER.md
+docs/feather-quantizer/README.md
+docs/feather-quantizer/spec.md
+docs/feather-quantizer/architecture.md
+docs/feather-quantizer/upstream-policy.md
+docs/feather-quantizer/guardrails.md
+docs/feather-quantizer/development-plan.md
+docs/feather-quantizer/research/task-001-upstream-analysis.md
+prompts/task-001-upstream-analysis.md
+scripts/feather-quantizer/build-kqm-baseline.sh
+.github/workflows/feather-guardrails.yml
+.github/workflows/feather-build.yml
+.github/PULL_REQUEST_TEMPLATE/feather-quantizer.md
+keyboards/feather_quantizer/.gitkeep

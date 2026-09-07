@@ -1,0 +1,70 @@
+name: Feather Quantizer - scope guardrails
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changed-file-scope:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce Feather project path boundaries
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+
+            const allowedPrefixes = [
+              'keyboards/feather_quantizer/',
+              'docs/feather-quantizer/',
+              'prompts/',
+              'scripts/feather-quantizer/',
+            ];
+
+            const protectedExact = new Set([
+              'AGENTS.md',
+              '.gitmodules',
+            ]);
+
+            const protectedPrefixes = [
+              '.github/workflows/',
+              'keyboards/sekigon/',
+              'lib/',
+              'platforms/',
+              'quantum/',
+              'tmk_core/',
+            ];
+
+            const violations = [];
+            let nonDocChangedLines = 0;
+
+            for (const file of files) {
+              const path = file.filename;
+              const isProtected = protectedExact.has(path) || protectedPrefixes.some(p => path.startsWith(p));
+              const isAllowed = allowedPrefixes.some(p => path.startsWith(p));
+
+              if (isProtected || !isAllowed) {
+                violations.push(path);
+              }
+
+              if (!path.startsWith('docs/') && !path.startsWith('prompts/')) {
+                nonDocChangedLines += file.additions + file.deletions;
+              }
+            }
+
+            if (nonDocChangedLines > 1500) {
+              core.setFailed(`Non-documentation diff is ${nonDocChangedLines} changed lines; hard guardrail is 1500. Split the task or obtain explicit human approval.`);
+            }
+
+            if (violations.length > 0) {
+              core.setFailed(`Files outside the Feather allowlist or inside protected upstream/control paths:\n${violations.join('\n')}`);
+            }

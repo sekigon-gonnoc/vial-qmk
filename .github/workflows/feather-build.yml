@@ -33,6 +33,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
+      - name: Mark repository as safe for Git
+        run: git config --global --add safe.directory "$(pwd)"
+
       - name: Install repository Python requirements
         run: /opt/uv/tools/qmk/bin/python3 -m pip install -r requirements.txt
 
@@ -62,6 +65,9 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
+
+      - name: Mark repository as safe for Git
+        run: git config --global --add safe.directory "$(pwd)"
 
       - name: Install repository Python requirements
         run: /opt/uv/tools/qmk/bin/python3 -m pip install -r requirements.txt

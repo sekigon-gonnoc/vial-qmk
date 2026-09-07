@@ -3,17 +3,20 @@
 ## Upstream
 
 - Repository: `https://github.com/sekigon-gonnoc/vial-qmk`
-- Base branch: `bmp-vial-1.0.6`
+- Reference branch at bootstrap time: `dev/ble-micro-pro`
+- **Pinned upstream baseline commit:** `4de02c1aeec5a34f0744a97213499441c508d565`
 - Reference target: `keyboards/sekigon/keyboard_quantizer/mini`
 
-The project should be created as a GitHub fork so Git ancestry and upstream comparison remain available.
+The pinned commit SHA is the authoritative baseline for this project. The upstream branch name is recorded for provenance, but it is mutable and must not be followed automatically during feature work.
+
+The initial Feather bootstrap commit is a direct child of the pinned upstream baseline, so the project delta remains reviewable from that exact commit.
 
 ## Remote layout
 
 Recommended local remotes:
 
 ```text
-origin   -> your GitHub fork
+origin   -> Kota-Ueda/feather-keyboard-quantizer
 upstream -> sekigon-gonnoc/vial-qmk
 ```
 
@@ -21,15 +24,16 @@ Verify with:
 
 ```bash
 git remote -v
+git show --no-patch --oneline 4de02c1aeec5a34f0744a97213499441c508d565
 ```
 
 ## Branch model
 
-- default integration branch: `feather-main`
+- integration branch: `feather-main`
 - task branches: `task/<number>-<short-name>`
-- never develop directly on `bmp-vial-1.0.6`
+- upstream reference: pinned commit `4de02c1aeec5a34f0744a97213499441c508d565`
 
-The upstream branch should remain a clean reference.
+Do not develop directly on an upstream reference branch. Do not merge or rebase a newer upstream branch into a feature/task branch.
 
 ## Protected upstream areas
 
@@ -58,6 +62,8 @@ When an upstream sync is intentionally performed:
 
 1. record the previous and new upstream commit IDs;
 2. perform the sync on a dedicated branch;
-3. build the original KQM target before and after;
-4. build the Feather target;
-5. review dependency/submodule changes explicitly.
+3. review all upstream changes between those commits before adopting them;
+4. build the original KQM target before and after;
+5. build the Feather target;
+6. review dependency/submodule changes explicitly;
+7. update the pinned baseline in this document only after human approval.

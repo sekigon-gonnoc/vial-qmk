@@ -6,14 +6,24 @@ Analyze the existing Keyboard Quantizer Mini implementation in this repository a
 
 This is an analysis task, not an implementation task.
 
+## Authoritative upstream baseline
+
+Use the pinned upstream commit recorded in `docs/feather-quantizer/upstream-policy.md`:
+
+```text
+4de02c1aeec5a34f0744a97213499441c508d565
+```
+
+The mutable upstream branch name is provenance only. Do not fetch, merge, rebase, or otherwise adopt newer upstream changes during this task.
+
 ## Mandatory instructions
 
 1. Read the repository-root `AGENTS.md` and all referenced Feather project docs before doing work.
-2. Do not modify firmware source code, upstream source, dependency files, submodules, build configuration, workflows, or AGENTS.md.
+2. Do not modify firmware source code, upstream source, dependency files, submodules, build configuration, workflows, or `AGENTS.md`.
 3. The only repository file you may create or modify is:
    `docs/feather-quantizer/research/task-001-upstream-analysis.md`
 4. You may run read-only inspection commands and builds.
-5. If a build needs the historically missing KQM Vial `keymap.h`, use the repository helper script or a temporary working-tree restoration that is removed before completion. Do not commit it to the upstream KQM path.
+5. Do not restore, generate, or patch files inside `keyboards/sekigon/**`. The current pinned baseline already contains the KQM Vial `keymap.h`; if an expected upstream file is missing, report that as an unexpected repository-state problem and stop before modifying upstream files.
 6. End with `git status --short`; apart from the designated report file, the working tree must remain unchanged.
 
 ## Required analysis
@@ -23,6 +33,7 @@ This is an analysis task, not an implementation task.
 Record:
 
 - current branch and HEAD
+- pinned upstream baseline commit
 - remotes
 - submodule state
 - target build command for `sekigon/keyboard_quantizer/mini:vial`

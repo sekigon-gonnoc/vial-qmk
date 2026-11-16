@@ -1,5 +1,5 @@
 
-; Copyright (c) 2021-2022 sekigon-gonnoc
+; Copyright (c) 2021-2024 sekigon-gonnoc
 
 .define public IRQ_RX_BS_ERR    1   ; bit stuffinc error
 .define public IRQ_RX_EOP       2   ; eop detect flag
@@ -32,8 +32,8 @@ pin_still_low:
 ; Resync on rising edge
 pin_low:
     jmp pin pin_went_high
-pin_went_low:
     jmp pin pin_went_high
+pin_went_low:
     jmp pin pin_went_high
     jmp pin pin_went_high
     jmp pin pin_went_high
@@ -41,13 +41,13 @@ pin_went_low:
 .wrap
 
 pin_still_high:
-    mov x, isr [2] 
+    mov x, isr [1] 
     jmp x-- eop	     		    ; Jump to eop if jmp_pin and in_pin are high because both inputs are inverted
 ; Jump to here on rising edge
 pin_went_high:
-    mov isr, null
+    mov isr, null [1]
+    irq DECODER_TRIGGER         ; Trigger NRZI decoder
     in pins, 1                  ; Capture the pin to check eop.
-    irq DECODER_TRIGGER			; Trigger NRZI decoder
     jmp pin pin_still_high
     jmp pin_went_low            ; To adjust interval of decoder trigger, jump to pin_went_low (not pin_low)
 
@@ -66,8 +66,8 @@ pin_still_low:
 ; Resync on rising edge
 pin_low:
     jmp pin pin_went_high   side db1
-pin_went_low:
     jmp pin pin_went_high   side db1
+pin_went_low:
     jmp pin pin_went_high   side db1
     jmp pin pin_went_high   side db1
     jmp pin pin_went_high   side db1
@@ -75,13 +75,13 @@ pin_went_low:
 .wrap
 
 pin_still_high:
-    mov x, isr [2] 			side db1
+    mov x, isr [1] 			side db1
     jmp x-- eop	     		side db1     ; Jump to eop if jmp_pin and in_pin are high because both inputs are inverted
 ; Jump to here on rising edge
 pin_went_high:
-    mov isr, null			side db1
+    mov isr, null [1]		side db1
+    irq DECODER_TRIGGER     side db0     ; Trigger NRZI decoder
     in pins, 1				side db0     ; Capture the pin to check eop.
-    irq DECODER_TRIGGER		side db0     ; Trigger NRZI decoder
     jmp pin pin_still_high  side db0
     jmp pin_went_low 		side db1     ; To adjust interval of decoder trigger, jump to pin_went_low (not pin_low)
 
@@ -100,32 +100,28 @@ set_y:
     set y, BIT_REPEAT_COUNT
 irq_wait:
     wait 1 irq DECODER_TRIGGER			; wait signal from edge detector
+    jmp !y flip			; ignore stuff bit, without error check
     jmp PIN pin_high
 pin_low:
-    jmp !y flip			; ignore stuff bit, without error check
     jmp !x K1
 K2:
     ; x==1
-    in null, 1
-    jmp flip
-K1:
-    ; x==0
-    in osr, 1
-    jmp y-- irq_wait
-    
-pin_high:
-    jmp !y flip			; ignore stuff bit, without error check
-    jmp !x J1
-J2:
-    ; x==1
-    in x, 1
-    jmp y-- irq_wait
 J1:
     ; x==0
     in null, 1
 flip:
     mov x, ~x
 .wrap
+    
+pin_high:
+    jmp !x J1
+J2:
+    ; x==1
+K1:
+    ; x==0
+    in osr, 1
+    jmp y-- irq_wait ; y is always not 0 at here
+
 .program usb_nrzi_decoder_debug
 .side_set 1 opt
 start:
@@ -135,48 +131,42 @@ set_y:
     set y, BIT_REPEAT_COUNT
 irq_wait:
     wait 1 irq DECODER_TRIGGER    ; wait signal from edge detector
+    jmp !y flip	; ignore stuff bit, without error check
     jmp PIN pin_high
 pin_low:
-    jmp !y flip	side db0	; ignore stuff bit, without error check
     jmp !x K1 side db0
 K2:
     ; x==1
-    in null, 1
-    jmp flip
-K1:
-    ; x==0
-    in osr, 1
-    jmp y-- irq_wait
-    
-pin_high:
-    jmp !y flip	side db1	; ignore stuff bit, without error check
-    jmp !x J1 side db1
-J2:
-    ; x==1
-    in x, 1
-    jmp y-- irq_wait
 J1:
     ; x==0
     in null, 1
 flip:
     mov x, ~x
 .wrap
+    
+pin_high:
+    jmp !x J1 side db1
+K1:
+    ; x==0
+J2:
+    ; x==1
+    in osr, 1
+    jmp y-- irq_wait ; y is always not 0 at here
 
 % c-sdk {
 #include "hardware/clocks.h"
+#include "sdk_compat.h"
 
-static __always_inline void pio_sm_set_jmp_pin(PIO pio, uint sm, uint jmp_pin) {
-  pio->sm[sm].execctrl =
-      (pio->sm[sm].execctrl & ~PIO_SM0_EXECCTRL_JMP_PIN_BITS) |
-      (jmp_pin << PIO_SM0_EXECCTRL_JMP_PIN_LSB);
-}
-
-static inline void usb_rx_fs_program_init(PIO pio, uint sm, uint offset, uint pin_dp, int pin_debug) {
-  pio_sm_set_consecutive_pindirs(pio, sm, pin_dp, 2, false);
+static inline void usb_rx_fs_program_init(PIO pio, uint sm, uint offset, uint pin_dp, uint pin_dm, int pin_debug) {
+  if (pin_dp < pin_dm) {
+    pio_sm_set_consecutive_pindirs(pio, sm, pin_dp, 2, false);
+  } else {
+    pio_sm_set_consecutive_pindirs(pio, sm, pin_dm, 2, false);
+  }
   gpio_pull_down(pin_dp);
-  gpio_pull_down(pin_dp + 1);  // dm
+  gpio_pull_down(pin_dm);
   gpio_set_inover(pin_dp, GPIO_OVERRIDE_INVERT);
-  gpio_set_inover(pin_dp + 1, GPIO_OVERRIDE_INVERT);
+  gpio_set_inover(pin_dm, GPIO_OVERRIDE_INVERT);
 
   pio_sm_config c;
 
@@ -185,8 +175,8 @@ static inline void usb_rx_fs_program_init(PIO pio, uint sm, uint offset, uint pi
   } else {
     c = usb_nrzi_decoder_debug_program_get_default_config(offset);
 
-    pio_sm_set_pins_with_mask(pio, sm, 0, 1 << pin_debug);
-    pio_sm_set_pindirs_with_mask(pio, sm, 1 << pin_debug, 1 << pin_debug);
+    pio_sm_set_pins_with_mask64(pio, sm, 0, 1ull << pin_debug);
+    pio_sm_set_pindirs_with_mask64(pio, sm, 1ull << pin_debug, 1ull << pin_debug);
     pio_gpio_init(pio, pin_debug);
     sm_config_set_sideset_pins(&c, pin_debug);
   }
@@ -204,21 +194,21 @@ static inline void usb_rx_fs_program_init(PIO pio, uint sm, uint offset, uint pi
 }
 
 static inline void eop_detect_fs_program_init(PIO pio, uint sm, uint offset,
-                                           uint pin_dp, bool is_fs, int pin_debug) {
+                                           uint pin_dp, uint pin_dm, bool is_fs, int pin_debug) {
   pio_sm_config c;
 
   if (pin_debug < 0) {
     c = usb_edge_detector_program_get_default_config(offset);
   } else {
     c = usb_edge_detector_debug_program_get_default_config(offset);
-    pio_sm_set_pins_with_mask(pio, sm, 0, 1 << pin_debug);
-    pio_sm_set_pindirs_with_mask(pio, sm, 1 << pin_debug, 1 << pin_debug);
+    pio_sm_set_pins_with_mask64(pio, sm, 0, 1ull << pin_debug);
+    pio_sm_set_pindirs_with_mask64(pio, sm, 1ull << pin_debug, 1ull << pin_debug);
     pio_gpio_init(pio, pin_debug);
     sm_config_set_sideset_pins(&c, pin_debug);
   }
 
   sm_config_set_in_pins(&c, pin_dp);  // for WAIT, IN
-  sm_config_set_jmp_pin(&c, pin_dp + 1);  // for JMP
+  sm_config_set_jmp_pin(&c, pin_dm);  // for JMP
 
   sm_config_set_in_shift(&c, false, false, 8);
 
@@ -231,7 +221,7 @@ static inline void eop_detect_fs_program_init(PIO pio, uint sm, uint offset,
 
   sm_config_set_clkdiv(&c, div);
 
-  pio_sm_init(pio, sm, offset + 1, &c);
+  pio_sm_init(pio, sm, offset, &c);
   pio_sm_set_enabled(pio, sm, true);
 }
 

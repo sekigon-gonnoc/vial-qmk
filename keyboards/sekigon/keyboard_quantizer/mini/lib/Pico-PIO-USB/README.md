@@ -20,12 +20,11 @@ https://user-images.githubusercontent.com/43873124/146642806-bdf34af6-4342-4a95-
 
 ## Examples
 
-- [capture_hid_report.c](examples/capture_hid_report/capture_hid_report.c) is a USB host sample program which print HID reports received from device. Open serial port and connect devices to pico. Default D+/D- is gp0/gp1. Call `pio_usb_add_port()` to use additional ports.
+- [host_hid_to_device_cdc.c](examples/host_hid_to_device_cdc/host_hid_to_device_cdc.c) which print mouse/keyboard report from host port to device port's cdc. TinyUSB is used to manage both device (native usb) and host (pio usb) stack.
 - [usb_device.c](examples/usb_device/usb_device.c) is a HID USB FS device sample which moves mouse cursor every 0.5s. External 1.5kohm pull-up register is necessary to D+ pin (Default is gp0).
-- [host_hid_to_device_cdc.c](examples/host_hid_to_device_cdc/host_hid_to_device_cdc.c) is similar to **capture_hid_report.c** which print mouse/keyboard report from host port to device port's cdc. TinyUSB is used to manage both device (native usb) and host (pio usb) stack.
 
 ```bash
-cd example
+cd examples
 mkdir build
 cd build
 cmake ..
@@ -39,9 +38,8 @@ Another sample program for split keyboard with QMK
 
 ## Resource Usage
 
-- Two PIO
-  - One PIO is for USB transmitter using 22 instruction and one state machine
-  - Another PIO is for USB receiver using 31 instruction and two state machine
+
+- 1 PIO, 3 state machines, 32 instructions
 - Two GPIO for D+/D- (Series 22ohm resitors are better)
 - 15KB ROM and RAM
 - (For Host) One 1ms repeating timer

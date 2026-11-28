@@ -18,11 +18,18 @@ SRC += lib/tinyusb/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c
 VPATH += keyboards/sekigon/keyboard_quantizer/mini/lib/tinyusb/src
 
 SRC += lib/pico-sdk/src/rp2_common/hardware_dma/dma.c
-SRC += lib/pico-sdk/src/host/pico_stdlib/stdlib.c
+SRC += lib/pico-sdk/src/rp2_common/pico_stdlib/stdlib.c
 VPATH += lib/pico-sdk/src/rp2_common/hardware_dma/include
 VPATH += lib/pico-sdk/src/rp2_common/hardware_uart/include
 VPATH += lib/pico-sdk/src/rp2_common/pico_stdio/include
 VPATH += lib/pico-sdk/src/common/pico_stdlib/include
+VPATH += lib/pico-sdk/src/common/pico_binary_info/include
 VPATH += lib/pico-sdk/src/common/pico_time/include
 VPATH += lib/pico-sdk/src/common/pico_sync/include
 VPATH += lib/pico-sdk/src/common/pico_util/include
+
+# Optional raw USB bus capture. Enable with USB_PACKET_CAPTURE_DEBUG=yes.
+ifeq ($(USB_PACKET_CAPTURE_DEBUG),yes)
+OPT_DEFS += -DUSB_PACKET_CAPTURE_DEBUG=1 -DUSB_CAPTURE_USE_CHIBIOS
+SRC += keyboards/sekigon/keyboard_quantizer/mini/lib/Pico-PIO-USB/src/usb_capture.c
+endif

@@ -24,3 +24,25 @@ Enter the bootloader in 2 ways:
 
 * **Keycode in layout**: Press the key mapped to `QK_BOOT` if it is available
 * **Virtser**: Send `b` to the device through virtser
+
+## USB packet capture debug
+
+Build the Vial keymap with raw USB capture enabled:
+
+    make sekigon/keyboard_quantizer/mini:vial USB_PACKET_CAPTURE_DEBUG=yes
+
+Serve `capture-gui/` from `localhost` or another secure origin, connect with
+Web Serial, then use **Arm / Resume** and **Save now**. Sampling starts at the
+next non-SOF USB Host transaction and follows its Full Speed or Low Speed
+setting. USB Host communication errors also request a freeze. Use
+**Fetch capture** to decode the retained samples, or **Clear buffer** to start
+over.
+
+Enable **Auto-save on valid IN DATA+ACK** before arming to freeze after the
+first CRC-valid IN data packet accepted by the Host. The GUI filters the packet
+list to ACK-completed IN transactions, and packet details show the DATA-to-ACK gap
+in bit times. The raw capture retains preceding bus history for context.
+
+The capture ring is 16 KiB. Its final sample boundary is a DMA boundary rather
+than a detected USB EOP, so the last packet can be incomplete; the GUI marks
+that condition in the status summary.

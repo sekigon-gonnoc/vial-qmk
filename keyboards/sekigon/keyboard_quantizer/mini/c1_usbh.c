@@ -7,6 +7,10 @@
 #include "pio_usb_ll.h"
 #include "hardware/sync.h"
 
+#if defined(USB_PACKET_CAPTURE_DEBUG) && USB_PACKET_CAPTURE_DEBUG
+#include "usb_capture.h"
+#endif
+
 // dummy implementation
 void alarm_pool_add_repeating_timer_us(void) {}
 void alarm_pool_create(void) {}
@@ -19,6 +23,9 @@ void c1_usbh(void) {
     tuh_configure(1, TUH_CFGID_RPI_PIO_USB_CONFIGURATION, &pio_cfg);
 
     tuh_init(1);
+#if defined(USB_PACKET_CAPTURE_DEBUG) && USB_PACKET_CAPTURE_DEBUG
+    usb_capture_init(&pio_cfg);
+#endif
     c1_start_timer();
 }
 
